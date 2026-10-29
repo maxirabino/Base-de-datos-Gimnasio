@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | FitForge</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/dot-grid.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">FIT<span>FORGE</span></a>
+      <nav class="main-nav">
+        <a href="/#actividades">Actividades</a>
+        <% if (currentUser) { %>
+          <a href="<%= panelUrl(currentUser.rol) %>">Mi panel</a>
+          <span class="user-chip"><%= currentUser.email %></span>
+          <form action="/logout" method="post" class="inline-form">
+            <button type="submit" class="btn btn-ghost btn-small">Salir</button>
+          </form>
+        <% } else { %>
+          <a href="/login">Ingresar</a>
+          <a class="btn btn-primary btn-small" href="/registro">Registrarme</a>
+        <% } %>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    <%- include('flash') %>

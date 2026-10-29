@@ -1,0 +1,102 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Resumen general</h1>
+    <p class="muted">Estado del gimnasio, clases y cuotas.</p>
+  </div>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="/admin/actividades">Nueva actividad</a>
+    <a class="btn btn-ghost" href="/admin/pagos">Registrar pago</a>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <span class="stat-label">Socios activos</span>
+    <strong><%= stats.socios %></strong>
+    <span class="muted small">con cuenta habilitada</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Profesores</span>
+    <strong><%= stats.profesores %></strong>
+    <span class="muted small">en actividad</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Actividades</span>
+    <strong><%= stats.actividades %></strong>
+    <span class="muted small">publicadas</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Reservas</span>
+    <strong><%= stats.reservas %></strong>
+    <span class="muted small">confirmadas</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Cuotas pendientes</span>
+    <strong><%= stats.cuotas_pendientes %></strong>
+    <span class="muted small">pendientes o vencidas</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Deuda total</span>
+    <strong><%= formatMoney(stats.deuda) %></strong>
+    <span class="muted small">a cobrar</span>
+  </article>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Clases publicadas</h2>
+      <a class="link" href="/admin/actividades">Administrar</a>
+    </div>
+    <% if (clases.length === 0) { %>
+      <div class="empty">No hay actividades publicadas.</div>
+    <% } else { %>
+      <ul class="class-list">
+        <% clases.forEach((c) => { %>
+          <li>
+            <div>
+              <strong><%= c.nombre %></strong>
+              <span class="muted small"><%= c.profesor || 'Sin profesor' %> · <%= c.sala %></span>
+            </div>
+            <div class="class-time">
+              <span class="badge badge-day"><%= c.dia_semana %></span>
+              <span class="muted small"><%= formatTime(c.hora_inicio) %> · <%= c.inscriptos %>/<%= c.cupo %></span>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Últimos movimientos</h2>
+      <a class="link" href="/admin/pagos">Ver pagos</a>
+    </div>
+    <% if (pagos.length === 0) { %>
+      <div class="empty">No hay pagos registrados.</div>
+    <% } else { %>
+      <ul class="payment-list">
+        <% pagos.forEach((p) => { %>
+          <li>
+            <div>
+              <strong><%= p.socio %></strong>
+              <span class="muted small"><%= p.concepto %></span>
+            </div>
+            <div class="payment-amount">
+              <strong><%= formatMoney(p.monto) %></strong>
+              <span class="badge badge-<%= p.estado %>"><%= p.estado %></span>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

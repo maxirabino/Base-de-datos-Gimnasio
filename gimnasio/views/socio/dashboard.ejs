@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Área de socios</span>
+    <h1>Hola, <%= socio.nombre %>.</h1>
+    <p class="muted">Este es el resumen de tu actividad en FitForge.</p>
+  </div>
+  <a class="btn btn-primary" href="/socio/actividades">Reservar una clase</a>
+</section>
+
+<nav class="tabs">
+  <a class="<%= active === 'resumen' ? 'active' : '' %>" href="/socio">Resumen</a>
+  <a class="<%= active === 'actividades' ? 'active' : '' %>" href="/socio/actividades">Actividades</a>
+  <a class="<%= active === 'reservas' ? 'active' : '' %>" href="/socio/reservas">Mis reservas</a>
+  <a class="<%= active === 'pagos' ? 'active' : '' %>" href="/socio/pagos">Mis cuotas</a>
+</nav>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <span class="stat-label">Reservas activas</span>
+    <strong><%= stats.reservas %></strong>
+    <span class="muted small">clases confirmadas</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Cuotas pendientes</span>
+    <strong><%= stats.cuotasPendientes %></strong>
+    <span class="muted small">por regularizar</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Saldo pendiente</span>
+    <strong><%= formatMoney(stats.deuda) %></strong>
+    <span class="muted small">incluye vencidas</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Total pagado</span>
+    <strong><%= formatMoney(stats.pagado) %></strong>
+    <span class="muted small">historial de cuotas</span>
+  </article>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Próximas reservas</h2>
+      <a class="link" href="/socio/reservas">Ver todas</a>
+    </div>
+    <% if (proximas.length === 0) { %>
+      <div class="empty">
+        <p>Todavía no tenés reservas.</p>
+        <a class="btn btn-small btn-primary" href="/socio/actividades">Ver actividades</a>
+      </div>
+    <% } else { %>
+      <ul class="class-list">
+        <% proximas.forEach((r) => { %>
+          <li>
+            <div>
+              <strong><%= r.nombre %></strong>
+              <span class="muted small"><%= r.profesor || 'Sin profesor' %> · <%= r.sala %></span>
+            </div>
+            <div class="class-time">
+              <span class="badge badge-day"><%= r.dia_semana %></span>
+              <span class="muted small"><%= formatTime(r.hora_inicio) %> a <%= formatTime(r.hora_fin) %></span>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Últimos pagos</h2>
+      <a class="link" href="/socio/pagos">Ver mis cuotas</a>
+    </div>
+    <% if (ultimosPagos.length === 0) { %>
+      <div class="empty">No hay pagos registrados todavía.</div>
+    <% } else { %>
+      <ul class="payment-list">
+        <% ultimosPagos.forEach((p) => { %>
+          <li>
+            <div>
+              <strong><%= p.concepto %></strong>
+              <span class="muted small">
+                <%= p.fecha_pago ? 'Pagado el ' + formatDate(p.fecha_pago) : 'Vence ' + formatDate(p.fecha_vencimiento) %>
+              </span>
+            </div>
+            <div class="payment-amount">
+              <strong><%= formatMoney(p.monto) %></strong>
+              <span class="badge badge-<%= p.estado %>"><%= p.estado %></span>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

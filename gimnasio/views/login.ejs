@@ -1,0 +1,38 @@
+<%- include('partials/header') %>
+
+<section class="auth-wrap">
+  <div class="auth-card card">
+    <span class="eyebrow">Bienvenido/a de nuevo</span>
+    <h1>Ingresar</h1>
+    <p class="muted">Accedé a tus reservas, cuotas y clases.</p>
+
+    <%- include('partials/errors') %>
+
+    <form method="post" action="/login" class="stack">
+      <input type="hidden" name="next" value="<%= next %>">
+      <label>
+        Email
+        <input type="email" name="email" value="<%= old.email || '' %>" placeholder="tu@email.com" required autofocus>
+      </label>
+      <label>
+        Contraseña
+        <input type="password" name="password" placeholder="Tu contraseña" required>
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+
+    <p class="auth-alt">¿No tenés cuenta? <a href="/registro">Creá una gratis</a></p>
+  </div>
+
+  <aside class="auth-side">
+    <h2>Cuentas de prueba</h2>
+    <p class="muted small">Usá una de estas cuentas para recorrer cada rol.</p>
+    <ul class="credentials">
+      <li><span>Admin</span><code>admin@gimnasio.com / Admin1234</code></li>
+      <li><span>Profesor</span><code>lucia@gimnasio.com / Profe1234</code></li>
+      <li><span>Socio</span><code>ana@gimnasio.com / Socio1234</code></li>
+    </ul>
+  </aside>
+</section>
+
+<%- include('partials/footer') %>

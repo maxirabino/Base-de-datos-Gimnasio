@@ -1,0 +1,64 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Mi agenda</span>
+    <h1>Mis reservas</h1>
+    <p class="muted">Consultá y administrá las clases a las que te inscribiste.</p>
+  </div>
+  <a class="btn btn-primary" href="/socio/actividades">Reservar otra clase</a>
+</section>
+
+<nav class="tabs">
+  <a class="<%= active === 'resumen' ? 'active' : '' %>" href="/socio">Resumen</a>
+  <a class="<%= active === 'actividades' ? 'active' : '' %>" href="/socio/actividades">Actividades</a>
+  <a class="<%= active === 'reservas' ? 'active' : '' %>" href="/socio/reservas">Mis reservas</a>
+  <a class="<%= active === 'pagos' ? 'active' : '' %>" href="/socio/pagos">Mis cuotas</a>
+</nav>
+
+<% if (reservas.length === 0) { %>
+  <div class="empty">
+    <p>No tenés reservas registradas.</p>
+    <a class="btn btn-small btn-primary" href="/socio/actividades">Ver actividades</a>
+  </div>
+<% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Actividad</th>
+          <th>Día y horario</th>
+          <th>Profesor</th>
+          <th>Sala</th>
+          <th>Precio</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% reservas.forEach((r) => { %>
+          <tr>
+            <td><strong><%= r.nombre %></strong></td>
+            <td><%= r.dia_semana %> · <%= formatTime(r.hora_inicio) %> a <%= formatTime(r.hora_fin) %></td>
+            <td><%= r.profesor %></td>
+            <td><%= r.sala %></td>
+            <td><%= formatMoney(r.precio) %></td>
+            <td><span class="badge badge-<%= r.estado %>"><%= r.estado %></span></td>
+            <td class="right">
+              <% if (r.estado === 'confirmada') { %>
+                <form method="post" action="/socio/reservas/<%= r.id %>/cancelar">
+                  <input type="hidden" name="redirect" value="/socio/reservas">
+                  <button type="submit" class="btn btn-small btn-ghost">Cancelar</button>
+                </form>
+              <% } else { %>
+                <a class="btn btn-small" href="/socio/actividades">Reservar de nuevo</a>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

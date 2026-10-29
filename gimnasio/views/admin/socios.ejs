@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Socios</h1>
+    <p class="muted">Listado de socios registrados, reservas y deuda.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2><%= socios.length %> socios registrados</h2>
+  </div>
+
+  <% if (socios.length === 0) { %>
+    <div class="empty">Todavía no hay socios registrados.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Socio</th>
+            <th>DNI</th>
+            <th>Contacto</th>
+            <th>Alta</th>
+            <th>Reservas</th>
+            <th>Deuda</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% socios.forEach((s) => { %>
+            <tr>
+              <td>
+                <strong><%= s.nombre %> <%= s.apellido %></strong>
+                <span class="muted small block"><%= s.email %></span>
+              </td>
+              <td><%= s.dni %></td>
+              <td><%= s.telefono || '-' %></td>
+              <td><%= formatDate(s.fecha_alta) %></td>
+              <td><%= s.reservas %></td>
+              <td class="<%= Number(s.deuda) > 0 ? 'text-warn' : '' %>"><%= formatMoney(s.deuda) %></td>
+              <td>
+                <span class="badge badge-<%= s.estado === 'activo' ? 'activa' : 'inactiva' %>"><%= s.estado %></span>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

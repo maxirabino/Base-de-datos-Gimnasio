@@ -1,0 +1,50 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración de cuotas</span>
+    <h1>Mis cuotas</h1>
+    <p class="muted">Historial de pagos y cuotas pendientes.</p>
+  </div>
+</section>
+
+<nav class="tabs">
+  <a class="<%= active === 'resumen' ? 'active' : '' %>" href="/socio">Resumen</a>
+  <a class="<%= active === 'actividades' ? 'active' : '' %>" href="/socio/actividades">Actividades</a>
+  <a class="<%= active === 'reservas' ? 'active' : '' %>" href="/socio/reservas">Mis reservas</a>
+  <a class="<%= active === 'pagos' ? 'active' : '' %>" href="/socio/pagos">Mis cuotas</a>
+</nav>
+
+<% if (pagos.length === 0) { %>
+  <div class="empty">No hay cuotas registradas todavía.</div>
+<% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Monto</th>
+          <th>Método</th>
+          <th>Vencimiento</th>
+          <th>Fecha de pago</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pagos.forEach((p) => { %>
+          <tr>
+            <td><strong><%= p.concepto %></strong></td>
+            <td><%= formatMoney(p.monto) %></td>
+            <td><%= p.metodo_pago || '-' %></td>
+            <td><%= formatDate(p.fecha_vencimiento) %></td>
+            <td><%= p.fecha_pago ? formatDate(p.fecha_pago) : '-' %></td>
+            <td><span class="badge badge-<%= p.estado %>"><%= p.estado %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small note">Los pagos se registran desde administración. Si ves un error, contactá al gimnasio.</p>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,124 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Actividades</h1>
+    <p class="muted">Publicá nuevas clases, asigná profesores y controlá cupos.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Nueva actividad</h2>
+  </div>
+
+  <%- include('../partials/errors') %>
+
+  <form method="post" action="/admin/actividades" class="stack">
+    <div class="form-grid form-grid-3">
+      <label>
+        Nombre
+        <input type="text" name="nombre" value="<%= old.nombre || '' %>" placeholder="Funcional, Yoga..." required>
+      </label>
+      <label>
+        Profesor
+        <select name="profesor_id" required>
+          <option value="">Seleccionar...</option>
+          <% profesores.forEach((p) => { %>
+            <option value="<%= p.id %>" <%= String(old.profesor_id) === String(p.id) ? 'selected' : '' %>>
+              <%= p.nombre %> · <%= p.especialidad %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Sala
+        <input type="text" name="sala" value="<%= old.sala || '' %>" placeholder="Sala 1" required>
+      </label>
+      <label>
+        Día
+        <select name="dia_semana" required>
+          <option value="">Seleccionar...</option>
+          <% dias.forEach((dia) => { %>
+            <option value="<%= dia %>" <%= old.dia_semana === dia ? 'selected' : '' %>><%= dia %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Hora de inicio
+        <input type="time" name="hora_inicio" value="<%= old.hora_inicio || '' %>" required>
+      </label>
+      <label>
+        Hora de fin
+        <input type="time" name="hora_fin" value="<%= old.hora_fin || '' %>" required>
+      </label>
+      <label>
+        Cupo
+        <input type="number" name="cupo" min="1" value="<%= old.cupo || '' %>" required>
+      </label>
+      <label>
+        Precio
+        <input type="number" name="precio" min="0" step="0.01" value="<%= old.precio ?? '' %>" required>
+      </label>
+      <label class="span-2">
+        Descripción
+        <textarea name="descripcion" rows="2" placeholder="Breve descripción de la clase"><%= old.descripcion || '' %></textarea>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear actividad</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2><%= actividades.length %> actividades</h2>
+  </div>
+
+  <% if (actividades.length === 0) { %>
+    <div class="empty">Todavía no hay actividades creadas.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Actividad</th>
+            <th>Día y horario</th>
+            <th>Profesor</th>
+            <th>Sala</th>
+            <th>Cupo</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% actividades.forEach((a) => { %>
+            <tr>
+              <td><strong><%= a.nombre %></strong></td>
+              <td><%= a.dia_semana %> · <%= formatTime(a.hora_inicio) %> a <%= formatTime(a.hora_fin) %></td>
+              <td><%= a.profesor || '-' %></td>
+              <td><%= a.sala %></td>
+              <td><%= a.inscriptos %> / <%= a.cupo %></td>
+              <td><%= formatMoney(a.precio) %></td>
+              <td>
+                <span class="badge badge-<%= a.activa ? 'activa' : 'inactiva' %>"><%= a.activa ? 'activa' : 'inactiva' %></span>
+              </td>
+              <td class="right">
+                <form method="post" action="/admin/actividades/<%= a.id %>/estado">
+                  <button type="submit" class="btn btn-small btn-ghost">
+                    <%= a.activa ? 'Despublicar' : 'Publicar' %>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

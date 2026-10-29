@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+
+<section class="error-page">
+  <span class="error-code"><%= status %></span>
+  <h1><%= title %></h1>
+  <p class="muted"><%= message %></p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="/">Volver al inicio</a>
+    <% if (currentUser) { %>
+      <a class="btn btn-ghost" href="<%= panelUrl(currentUser.rol) %>">Ir a mi panel</a>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
