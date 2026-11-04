@@ -2,12 +2,13 @@
   "name": "gimnasio-fitforge",
   "version": "1.0.0",
   "private": true,
-  "description": "Sitio web de gimnasio con registro, inicio de sesion y paneles por rol",
+  "description": "Sitio web del gimnasio sobre la base SistemaGimnasio (socios, entrenadores, membresías, rutinas, ingresos)",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
-    "db:init": "node scripts/init-db.js"
+    "db:init": "node scripts/init-db.js",
+    "db:cuentas-demo": "node scripts/init-db.js --cuentas-demo"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

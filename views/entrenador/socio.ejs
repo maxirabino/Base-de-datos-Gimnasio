@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Ficha del socio</span>
+    <h1><%= socioFicha.nombre %> <%= socioFicha.apellidos %></h1>
+    <p class="muted">
+      Doc. <%= socioFicha.documento %> · Tel. <%= socioFicha.telefono || '-' %> ·
+      Membresía: <span class="badge badge-<%= socioFicha.estado_cuota.replace(' ', '-') %>"><%= socioFicha.estado_cuota %></span>
+      <% if (socioFicha.tipo_plan) { %> (<%= socioFicha.tipo_plan %>, vence <%= formatDate(socioFicha.fecha_vencimiento) %>)<% } %>
+    </p>
+  </div>
+  <a class="btn btn-ghost" href="/entrenador">Volver</a>
+</section>
+
+<% rutinas.forEach((r) => { %>
+  <section class="panel routine-block">
+    <div class="panel-head">
+      <div>
+        <h2><%= r.nombre_rutina %></h2>
+        <span class="muted small"><%= r.objetivo || 'Sin objetivo definido' %> · Nivel <%= r.nivel %> · <%= r.duracion_semanas %> semanas</span>
+      </div>
+      <span class="muted small">Asignada el <%= formatDate(r.fecha_asignacion) %></span>
+    </div>
+    <% if (r.observaciones) { %><p class="muted small">Observaciones: <%= r.observaciones %></p><% } %>
+    <%- include('../partials/ejercicios', { ejercicios: r.ejercicios }) %>
+  </section>
+<% }) %>
+
+<section class="panel">
+  <div class="panel-head"><h2>Registrar evaluación física</h2></div>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/entrenador/socios/<%= socioFicha.id_socio %>/evolucion" class="stack">
+    <div class="form-grid form-grid-3">
+      <label>Peso (kg)
+        <input type="number" name="peso_kg" min="1" max="999.99" step="0.01" value="<%= old.peso_kg ?? '' %>" required>
+      </label>
+      <label>% de grasa
+        <input type="number" name="porcentaje_grasa" min="0" max="99.99" step="0.01" value="<%= old.porcentaje_grasa ?? '' %>">
+      </label>
+      <label>Masa muscular (kg)
+        <input type="number" name="masa_muscular_kg" min="0" max="999.99" step="0.01" value="<%= old.masa_muscular_kg ?? '' %>">
+      </label>
+      <label class="span-2">Observaciones
+        <input type="text" name="observaciones" maxlength="250" value="<%= old.observaciones || '' %>">
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar evaluación</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>Evolución física</h2></div>
+  <%- include('../partials/evolucion-tabla', { registros: evolucion }) %>
+</section>
+
+<%- include('../partials/footer') %>

@@ -1,12 +1,11 @@
 const roleHome = {
   admin: '/admin',
-  profesor: '/profesor',
+  entrenador: '/entrenador',
   socio: '/socio',
 };
 
 function panelUrl(role) {
-  const cleanRole = (role || 'socio').trim().toLowerCase();
-  return roleHome[cleanRole] || '/';
+  return roleHome[role] || '/';
 }
 
 function loadUser(req, res, next) {
@@ -27,11 +26,7 @@ function requireRole(...roles) {
     if (!req.session.user) {
       return res.redirect(`/login?next=${encodeURIComponent(req.originalUrl)}`);
     }
-    
-    // Limpiamos los espacios por si SQL Server mandó basura
-    const userRole = (req.session.user.rol || '').trim().toLowerCase();
-    
-    if (!roles.includes(userRole)) {
+    if (!roles.includes(req.session.user.rol)) {
       return res.status(403).render('error', {
         title: 'Acceso denegado',
         status: 403,

@@ -4,7 +4,7 @@
   <div class="auth-card card">
     <span class="eyebrow">Sumate al gimnasio</span>
     <h1>Crear cuenta de socio</h1>
-    <p class="muted">Completá tus datos y empezá a reservar clases.</p>
+    <p class="muted">Completá tus datos. Si ya sos socio del gimnasio, usá el mismo documento y fecha de nacimiento de tu ficha.</p>
 
     <%- include('partials/errors') %>
 
@@ -15,12 +15,12 @@
           <input type="text" name="nombre" value="<%= old.nombre || '' %>" required>
         </label>
         <label>
-          Apellido
-          <input type="text" name="apellido" value="<%= old.apellido || '' %>" required>
+          Apellidos
+          <input type="text" name="apellidos" value="<%= old.apellidos || '' %>" required>
         </label>
         <label>
-          DNI
-          <input type="text" name="dni" value="<%= old.dni || '' %>" inputmode="numeric" required>
+          Documento
+          <input type="text" name="documento" value="<%= old.documento || '' %>" inputmode="numeric" required>
         </label>
         <label>
           Teléfono
@@ -28,7 +28,11 @@
         </label>
         <label>
           Fecha de nacimiento
-          <input type="date" name="fecha_nacimiento" value="<%= old.fecha_nacimiento || '' %>">
+          <input type="date" name="fecha_nacimiento" value="<%= old.fecha_nacimiento || '' %>" required>
+        </label>
+        <label class="span-2">
+          Dirección
+          <input type="text" name="direccion" value="<%= old.direccion || '' %>" placeholder="Calle y número, localidad">
         </label>
         <label>
           Email
@@ -53,12 +57,12 @@
   <aside class="auth-side">
     <h2>Tu cuenta de socio incluye</h2>
     <ul class="check-list">
-      <li>Reserva y cancelación de clases online.</li>
-      <li>Consulta de cupos en tiempo real.</li>
-      <li>Historial de cuotas y pagos.</li>
-      <li>Acceso desde cualquier dispositivo.</li>
+      <li>Tus rutinas con series, repeticiones y cargas.</li>
+      <li>Seguimiento de peso, grasa y masa muscular.</li>
+      <li>Estado de tu membresía y vencimiento.</li>
+      <li>Historial de pagos e ingresos al gimnasio.</li>
     </ul>
-    <p class="muted small">Los usuarios de profesor y administración los crea el gimnasio.</p>
+    <p class="muted small">Los usuarios de entrenador y administración los crea el gimnasio.</p>
   </aside>
 </section>
 

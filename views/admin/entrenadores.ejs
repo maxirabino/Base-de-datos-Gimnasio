@@ -1,0 +1,59 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Entrenadores</h1>
+    <p class="muted">Alta de entrenadores y sus accesos a la web.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<section class="panel">
+  <div class="panel-head"><h2>Nuevo entrenador</h2></div>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/admin/entrenadores" class="stack">
+    <div class="form-grid form-grid-3">
+      <label>Nombre <input type="text" name="nombre" value="<%= old.nombre || '' %>" required></label>
+      <label>Apellido <input type="text" name="apellido" value="<%= old.apellido || '' %>" required></label>
+      <label>Teléfono <input type="tel" name="telefono" value="<%= old.telefono || '' %>"></label>
+      <label>Especialidad <input type="text" name="especialidad" value="<%= old.especialidad || '' %>" required></label>
+      <label>Certificaciones <input type="text" name="certificaciones" maxlength="200" value="<%= old.certificaciones || '' %>"></label>
+      <label>Email de acceso <input type="email" name="email" value="<%= old.email || '' %>" required></label>
+      <label>Contraseña inicial
+        <input type="password" name="password" minlength="8" required>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear entrenador</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2><%= entrenadores.length %> entrenadores</h2></div>
+  <% if (entrenadores.length === 0) { %>
+    <div class="empty">Todavía no hay entrenadores.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Entrenador</th><th>Teléfono</th><th>Especialidad</th><th>Certificaciones</th><th>Socios</th><th>Cuenta web</th></tr>
+        </thead>
+        <tbody>
+          <% entrenadores.forEach((e) => { %>
+            <tr>
+              <td><strong><%= e.nombre %> <%= e.apellido %></strong></td>
+              <td><%= e.telefono || '-' %></td>
+              <td><%= e.especialidad || '-' %></td>
+              <td><%= e.certificaciones || '-' %></td>
+              <td><%= e.socios %></td>
+              <td><%= e.email || 'Sin cuenta' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

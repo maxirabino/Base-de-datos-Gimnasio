@@ -1,0 +1,15 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Seguimiento físico</span>
+    <h1>Mi evolución</h1>
+    <p class="muted">Historial de evaluaciones registradas por tus entrenadores.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<%- include('../partials/evolucion-tabla', { registros }) %>
+
+<%- include('../partials/footer') %>

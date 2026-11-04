@@ -1,10 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { query } = require('../db');
-const { clean, toDateOrNull, asyncHandler } = require('../utils');
+const { query, transaction, txQuery } = require('../db');
+const { clean, toDateOrNull, asyncHandler, isValidISODate, dateToISO } = require('../utils');
 const { panelUrl } = require('../middleware/auth');
 
 const router = express.Router();
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function safeNext(value) {
@@ -36,25 +37,17 @@ router.post(
     let usuario = null;
     if (errors.length === 0) {
       const result = await query(
-        `SELECT id_socio AS id, email, password_hash, ISNULL(rol, 'socio') AS rol, ISNULL(activo, 1) AS activo
-         FROM Socios WHERE email = @email`,
+        `SELECT id_usuario, email, password_hash, rol, activo, id_socio, id_entrenador
+         FROM Usuarios WHERE email = @email`,
         { email }
       );
       usuario = result.recordset[0] || null;
-      
-      if (!usuario || !usuario.password_hash) {
+      if (!usuario) {
         errors.push('Email o contraseña incorrectos.');
       } else if (!usuario.activo) {
-        errors.push('La cuenta está deshabilitada.');
+        errors.push('La cuenta está deshabilitada. Contactá al gimnasio.');
       } else {
-        // Cuentas de prueba rápidas
-        let valid = false;
-        if (email === 'admin@gimnasio.com' && password === 'Admin1234') valid = true;
-        else if (email === 'lucia@gimnasio.com' && password === 'Profe1234') valid = true;
-        else {
-          valid = await bcrypt.compare(password, usuario.password_hash);
-        }
-
+        const valid = await bcrypt.compare(password, usuario.password_hash);
         if (!valid) errors.push('Email o contraseña incorrectos.');
       }
     }
@@ -68,17 +61,15 @@ router.post(
       });
     }
 
-    // Sellamos la sesión de forma segura y obligatoria
     req.session.user = {
-      id: usuario.id,
+      id: usuario.id_usuario,
       email: usuario.email,
-      rol: (usuario.rol || 'socio').trim().toLowerCase(),
+      rol: usuario.rol,
+      idSocio: usuario.id_socio,
+      idEntrenador: usuario.id_entrenador,
     };
-    
-    req.session.save((err) => {
-      req.flash('success', 'Bienvenido/a de nuevo.');
-      res.redirect(next || panelUrl(req.session.user.rol));
-    });
+    req.flash('success', 'Bienvenido/a de nuevo.');
+    res.redirect(next || panelUrl(usuario.rol));
   })
 );
 
@@ -96,9 +87,10 @@ router.post(
   asyncHandler(async (req, res) => {
     const data = {
       nombre: clean(req.body.nombre),
-      apellido: clean(req.body.apellido),
-      dni: clean(req.body.dni),
+      apellidos: clean(req.body.apellidos),
+      documento: clean(req.body.documento),
       telefono: clean(req.body.telefono),
+      direccion: clean(req.body.direccion),
       fecha_nacimiento: toDateOrNull(req.body.fecha_nacimiento),
       email: clean(req.body.email).toLowerCase(),
       password: String(req.body.password || ''),
@@ -107,22 +99,41 @@ router.post(
     const errors = [];
 
     if (!data.nombre) errors.push('Ingresá tu nombre.');
-    if (!data.apellido) errors.push('Ingresá tu apellido.');
-    if (!data.dni) errors.push('Ingresá tu DNI.');
+    if (!data.apellidos) errors.push('Ingresá tus apellidos.');
+    if (!data.documento) errors.push('Ingresá tu documento.');
+    if (!data.fecha_nacimiento || !isValidISODate(data.fecha_nacimiento)) {
+      errors.push('Ingresá tu fecha de nacimiento.');
+    }
     if (!emailPattern.test(data.email)) errors.push('Ingresá un email válido.');
     if (data.password.length < 8) errors.push('La contraseña debe tener al menos 8 caracteres.');
     if (data.password !== data.password2) errors.push('Las contraseñas no coinciden.');
 
+    // Si el documento ya pertenece a un socio cargado por recepción y todavía no tiene
+    // cuenta, se vincula la cuenta a ese socio (validando la fecha de nacimiento).
+    let socioExistente = null;
     if (errors.length === 0) {
-      const duplicado = await query(
-        `SELECT 
-           (SELECT COUNT(*) FROM Socios WHERE email = @email) AS email_count,
-           (SELECT COUNT(*) FROM Socios WHERE documento = @dni) AS dni_count`,
-        { email: data.email, dni: data.dni }
+      const found = await query(
+        `SELECT s.id_socio, s.fecha_nacimiento,
+                (SELECT COUNT(*) FROM Usuarios u WHERE u.id_socio = s.id_socio) AS cuentas,
+                (SELECT COUNT(*) FROM Usuarios WHERE email = @email) AS email_usado
+         FROM Socios s WHERE s.documento = @documento`,
+        { documento: data.documento, email: data.email }
       );
-      const row = duplicado.recordset[0];
-      if (row.email_count > 0) errors.push('Ya existe una cuenta con ese email.');
-      if (row.dni_count > 0) errors.push('Ya existe un socio con ese DNI.');
+      const row = found.recordset[0];
+      const emailUsado = row
+        ? row.email_usado > 0
+        : (await query(`SELECT COUNT(*) AS n FROM Usuarios WHERE email = @email`, { email: data.email }))
+            .recordset[0].n > 0;
+      if (emailUsado) errors.push('Ya existe una cuenta con ese email.');
+      if (row) {
+        if (row.cuentas > 0) {
+          errors.push('Ese documento ya tiene una cuenta. Ingresá con tu email.');
+        } else if (dateToISO(row.fecha_nacimiento) !== data.fecha_nacimiento) {
+          errors.push('Los datos no coinciden con el socio registrado en el gimnasio. Consultá en recepción.');
+        } else {
+          socioExistente = row;
+        }
+      }
     }
 
     if (errors.length > 0) {
@@ -135,29 +146,52 @@ router.post(
 
     const hash = await bcrypt.hash(data.password, 10);
 
-    const result = await query(
-      `INSERT INTO Socios (nombre, apellidos, documento, telefono, direccion, fecha_nacimiento, fecha_alta, email, password_hash, activo, rol)
-       OUTPUT INSERTED.id_socio, INSERTED.email
-       VALUES (@nombre, @apellido, @dni, @telefono, '', @fecha_nacimiento, GETDATE(), @email, @hash, 1, 'socio')`,
-      {
-        nombre: data.nombre,
-        apellido: data.apellido,
-        dni: data.dni,
-        telefono: data.telefono || null,
-        fecha_nacimiento: data.fecha_nacimiento,
-        email: data.email,
-        hash: hash,
+    const usuario = await transaction(async (tx) => {
+      let idSocio;
+      if (socioExistente) {
+        idSocio = socioExistente.id_socio;
+      } else {
+        const socio = await txQuery(
+          tx,
+          `INSERT INTO Socios
+             (nombre, apellidos, documento, telefono, direccion, fecha_nacimiento, estado_membresia)
+           OUTPUT INSERTED.id_socio
+           VALUES (@nombre, @apellidos, @documento, @telefono, @direccion, @fecha_nacimiento, 'Vencido')`,
+          {
+            nombre: data.nombre,
+            apellidos: data.apellidos,
+            documento: data.documento,
+            telefono: data.telefono || null,
+            direccion: data.direccion || null,
+            fecha_nacimiento: data.fecha_nacimiento,
+          }
+        );
+        idSocio = socio.recordset[0].id_socio;
       }
-    );
-
-    const nuevoSocio = result.recordset[0];
-
-    req.session.user = { id: nuevoSocio.id_socio, email: nuevoSocio.email, rol: 'socio' };
-    
-    req.session.save(() => {
-      req.flash('success', '¡Cuenta creada! Ya podés reservar tus clases.');
-      res.redirect('/socio');
+      const inserted = await txQuery(
+        tx,
+        `INSERT INTO Usuarios (email, password_hash, rol, id_socio)
+         OUTPUT INSERTED.id_usuario, INSERTED.email
+         VALUES (@email, @hash, 'socio', @id_socio)`,
+        { email: data.email, hash, id_socio: idSocio }
+      );
+      return { ...inserted.recordset[0], idSocio };
     });
+
+    req.session.user = {
+      id: usuario.id_usuario,
+      email: usuario.email,
+      rol: 'socio',
+      idSocio: usuario.idSocio,
+      idEntrenador: null,
+    };
+    req.flash(
+      'success',
+      socioExistente
+        ? '¡Cuenta vinculada a tu ficha de socio!'
+        : '¡Cuenta creada! Para activar tu membresía acercate a recepción.'
+    );
+    res.redirect('/socio');
   })
 );
 

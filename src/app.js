@@ -45,9 +45,9 @@ app.use('/', require('./routes/public'));
 app.use('/', require('./routes/auth'));
 app.use('/socio', require('./middleware/auth').requireRole('socio'), require('./routes/socio'));
 app.use(
-  '/profesor',
-  require('./middleware/auth').requireRole('profesor'),
-  require('./routes/profesor')
+  '/entrenador',
+  require('./middleware/auth').requireRole('entrenador'),
+  require('./routes/entrenador')
 );
 app.use('/admin', require('./middleware/auth').requireRole('admin'), require('./routes/admin'));
 

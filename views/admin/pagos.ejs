@@ -3,113 +3,89 @@
 <section class="page-head">
   <div>
     <span class="eyebrow">Administración</span>
-    <h1>Pagos y cuotas</h1>
-    <p class="muted">Registrá cuotas, pagos y regularizá deudas.</p>
+    <h1>Pagos y membresías</h1>
+    <p class="muted">Registrá el pago de un plan. Si dejás monto y vencimiento vacíos se usan los del plan.</p>
   </div>
 </section>
 
 <%- include('tabs') %>
 
 <section class="panel">
-  <div class="panel-head">
-    <h2>Registrar cuota o pago</h2>
-  </div>
-
+  <div class="panel-head"><h2>Registrar pago</h2></div>
   <%- include('../partials/errors') %>
-
   <form method="post" action="/admin/pagos" class="stack">
     <div class="form-grid form-grid-3">
       <label>
         Socio
-        <select name="socio_id" required>
+        <select name="id_socio" required>
           <option value="">Seleccionar...</option>
           <% socios.forEach((s) => { %>
-            <option value="<%= s.id %>" <%= String(old.socio_id) === String(s.id) ? 'selected' : '' %>>
-              <%= s.nombre %> · DNI <%= s.dni %>
+            <option value="<%= s.id_socio %>" <%= String(old.id_socio) === String(s.id_socio) ? 'selected' : '' %>>
+              <%= s.nombre %> · Doc. <%= s.documento %>
             </option>
           <% }) %>
         </select>
       </label>
       <label>
-        Concepto
-        <input type="text" name="concepto" value="<%= old.concepto || '' %>" placeholder="Cuota noviembre" required>
+        Membresía
+        <select name="id_membresia" required>
+          <option value="">Seleccionar...</option>
+          <% membresias.forEach((m) => { %>
+            <option value="<%= m.id_membresia %>" <%= String(old.id_membresia) === String(m.id_membresia) ? 'selected' : '' %>>
+              <%= m.tipo_plan %> · <%= formatMoney(m.costo) %>
+            </option>
+          <% }) %>
+        </select>
       </label>
       <label>
-        Monto
-        <input type="number" name="monto" min="0.01" step="0.01" value="<%= old.monto ?? '' %>" required>
+        Monto abonado
+        <input type="number" name="monto_abonado" min="0.01" step="0.01" value="<%= old.monto_abonado ?? '' %>" placeholder="Costo del plan">
       </label>
       <label>
         Método de pago
-        <select name="metodo_pago">
-          <option value="">Sin especificar</option>
-          <% ['Efectivo', 'Tarjeta', 'Transferencia'].forEach((m) => { %>
+        <select name="metodo_pago" required>
+          <option value="">Seleccionar...</option>
+          <% metodos.forEach((m) => { %>
             <option value="<%= m %>" <%= old.metodo_pago === m ? 'selected' : '' %>><%= m %></option>
           <% }) %>
         </select>
       </label>
       <label>
         Fecha de pago
-        <input type="date" name="fecha_pago" value="<%= old.fecha_pago || '' %>">
+        <input type="date" name="fecha_pago" value="<%= old.fecha_pago || hoy %>">
       </label>
       <label>
         Vencimiento
         <input type="date" name="fecha_vencimiento" value="<%= old.fecha_vencimiento || '' %>">
       </label>
-      <label>
-        Estado
-        <select name="estado">
-          <% estados.forEach((estado) => { %>
-            <option value="<%= estado %>" <%= (old.estado || 'pendiente') === estado ? 'selected' : '' %>><%= estado %></option>
-          <% }) %>
-        </select>
-      </label>
     </div>
-    <button type="submit" class="btn btn-primary">Registrar</button>
+    <button type="submit" class="btn btn-primary">Registrar pago</button>
   </form>
 </section>
 
 <section class="panel">
-  <div class="panel-head">
-    <h2><%= pagos.length %> movimientos</h2>
-  </div>
-
+  <div class="panel-head"><h2><%= pagos.length %> pagos</h2></div>
   <% if (pagos.length === 0) { %>
     <div class="empty">Todavía no hay pagos registrados.</div>
   <% } else { %>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr>
-            <th>Socio</th>
-            <th>Concepto</th>
-            <th>Monto</th>
-            <th>Método</th>
-            <th>Vencimiento</th>
-            <th>Pago</th>
-            <th>Estado</th>
-            <th></th>
-          </tr>
+          <tr><th>Socio</th><th>Plan</th><th>Monto</th><th>Método</th><th>Pago</th><th>Vencimiento</th><th>Estado</th></tr>
         </thead>
         <tbody>
           <% pagos.forEach((p) => { %>
             <tr>
               <td>
                 <strong><%= p.socio %></strong>
-                <span class="muted small block">DNI <%= p.dni %></span>
+                <span class="muted small block">Doc. <%= p.documento %></span>
               </td>
-              <td><%= p.concepto %></td>
-              <td><%= formatMoney(p.monto) %></td>
+              <td><%= p.tipo_plan %></td>
+              <td><%= formatMoney(p.monto_abonado) %></td>
               <td><%= p.metodo_pago || '-' %></td>
+              <td><%= formatDate(p.fecha_pago) %></td>
               <td><%= formatDate(p.fecha_vencimiento) %></td>
-              <td><%= p.fecha_pago ? formatDate(p.fecha_pago) : '-' %></td>
               <td><span class="badge badge-<%= p.estado %>"><%= p.estado %></span></td>
-              <td class="right">
-                <% if (p.estado !== 'pagado') { %>
-                  <form method="post" action="/admin/pagos/<%= p.id %>/pagar">
-                    <button type="submit" class="btn btn-small">Marcar pagado</button>
-                  </form>
-                <% } %>
-              </td>
             </tr>
           <% }) %>
         </tbody>

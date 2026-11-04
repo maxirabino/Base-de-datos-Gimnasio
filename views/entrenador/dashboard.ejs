@@ -1,0 +1,92 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Área de entrenadores</span>
+    <h1>Hola, <%= entrenador.nombre %>.</h1>
+    <p class="muted"><%= entrenador.especialidad %></p>
+  </div>
+</section>
+
+<section class="stats-grid stats-grid-3">
+  <article class="stat-card">
+    <span class="stat-label">Socios a cargo</span>
+    <strong><%= totalSocios %></strong>
+    <span class="muted small">con rutina asignada por vos</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Rutinas asignadas</span>
+    <strong><%= asignaciones.length %></strong>
+    <span class="muted small">en total</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Especialidad</span>
+    <strong class="stat-text"><%= entrenador.especialidad %></strong>
+    <span class="muted small"><%= entrenador.certificaciones || 'perfil profesional' %></span>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>Asignar rutina a un socio</h2></div>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/entrenador/asignar" class="stack">
+    <div class="form-grid form-grid-3">
+      <label>
+        Socio
+        <select name="id_socio" required>
+          <option value="">Seleccionar...</option>
+          <% socios.forEach((s) => { %>
+            <option value="<%= s.id_socio %>" <%= String(old.id_socio) === String(s.id_socio) ? 'selected' : '' %>>
+              <%= s.nombre %> · Doc. <%= s.documento %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Rutina
+        <select name="id_rutina" required>
+          <option value="">Seleccionar...</option>
+          <% rutinas.forEach((r) => { %>
+            <option value="<%= r.id_rutina %>" <%= String(old.id_rutina) === String(r.id_rutina) ? 'selected' : '' %>>
+              <%= r.nombre_rutina %> (<%= r.nivel %>)
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Observaciones
+        <input type="text" name="observaciones" maxlength="250" value="<%= old.observaciones || '' %>">
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Asignar</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>Mis asignaciones</h2></div>
+  <% if (asignaciones.length === 0) { %>
+    <div class="empty">Todavía no asignaste rutinas.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Socio</th><th>Rutina</th><th>Nivel</th><th>Asignada</th><th>Observaciones</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% asignaciones.forEach((a) => { %>
+            <tr>
+              <td><strong><%= a.socio %></strong></td>
+              <td><%= a.nombre_rutina %><span class="muted small block"><%= a.objetivo || '' %></span></td>
+              <td><%= a.nivel %></td>
+              <td><%= formatDate(a.fecha_asignacion) %></td>
+              <td><%= a.observaciones || '-' %></td>
+              <td class="right"><a class="btn btn-small" href="/entrenador/socios/<%= a.id_socio %>">Ver ficha</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

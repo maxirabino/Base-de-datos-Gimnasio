@@ -6,11 +6,11 @@
 
 <section class="hero">
   <div class="hero-content">
-    <span class="eyebrow">Entrenamiento · Comunidad · Resultados</span>
+    <span class="eyebrow">Entrenamiento · Seguimiento · Resultados</span>
     <h1>Tu mejor versión empieza <span class="accent">hoy</span>.</h1>
     <p class="lead">
-      Clases para todos los niveles, profesores que te acompañan y una comunidad
-      que empuja. Elegí tu actividad y reservá tu lugar en segundos.
+      Planes flexibles, entrenadores que arman tu rutina y un seguimiento real de tu evolución.
+      Consultá tu membresía, tus rutinas y tu progreso desde cualquier dispositivo.
     </p>
     <div class="hero-actions">
       <% if (currentUser) { %>
@@ -21,54 +21,46 @@
       <% } %>
     </div>
     <div class="hero-stats">
-      <div><strong><%= stats.socios %></strong><span>socios activos</span></div>
-      <div><strong><%= stats.profesores %></strong><span>profesores</span></div>
-      <div><strong><%= stats.actividades %></strong><span>actividades</span></div>
+      <div><strong><%= stats.socios %></strong><span>socios con cuota al día</span></div>
+      <div><strong><%= stats.entrenadores %></strong><span>entrenadores</span></div>
+      <div><strong><%= stats.sedes %></strong><span>sedes</span></div>
     </div>
   </div>
   <div class="hero-card">
     <p class="eyebrow">Empezá en 3 pasos</p>
     <ol class="steps">
       <li><span>1</span> Creá tu cuenta de socio.</li>
-      <li><span>2</span> Elegí la actividad y el horario.</li>
-      <li><span>3</span> Reservá y vení a entrenar.</li>
+      <li><span>2</span> Elegí tu plan y abonalo en recepción.</li>
+      <li><span>3</span> Recibí tu rutina y seguí tu evolución.</li>
     </ol>
     <div class="hero-card-footer">
-      <span class="dot"></span> Cupos actualizados en tiempo real
+      <span class="dot"></span> Datos sincronizados con el sistema del gimnasio
     </div>
   </div>
 </section>
 
-<section id="actividades" class="section">
+<section id="membresias" class="section">
   <div class="section-head">
     <div>
-      <span class="eyebrow">Nuestra grilla</span>
-      <h2>Actividades disponibles</h2>
+      <span class="eyebrow">Planes</span>
+      <h2>Membresías</h2>
     </div>
-    <p class="muted">Elegí la clase que mejor se adapte a tu ritmo y objetivos.</p>
+    <p class="muted">Elegí el plan que mejor se adapte a tu ritmo.</p>
   </div>
 
-  <% if (actividades.length === 0) { %>
-    <div class="empty">Todavía no hay actividades publicadas.</div>
+  <% if (membresias.length === 0) { %>
+    <div class="empty">Todavía no hay planes publicados.</div>
   <% } else { %>
     <div class="grid activity-grid">
-      <% actividades.forEach((a) => { %>
+      <% membresias.forEach((m) => { %>
         <article class="card activity-card">
           <div class="activity-top">
-            <span class="badge badge-day"><%= a.dia_semana %></span>
-            <span class="price"><%= formatMoney(a.precio) %></span>
+            <span class="badge badge-day"><%= m.tipo_plan %></span>
+            <span class="price"><%= formatMoney(m.costo) %></span>
           </div>
-          <h3><%= a.nombre %></h3>
-          <p class="muted small"><%= a.descripcion %></p>
-          <ul class="meta">
-            <li><span>Profesor</span> <%= a.profesor %></li>
-            <li><span>Horario</span> <%= formatTime(a.hora_inicio) %> a <%= formatTime(a.hora_fin) %></li>
-            <li><span>Sala</span> <%= a.sala %></li>
-            <li><span>Cupo</span> <%= a.inscriptos %> / <%= a.cupo %> lugares</li>
-          </ul>
-          <% if (currentUser && currentUser.rol === 'socio') { %>
-            <a class="btn btn-small btn-primary" href="/socio/actividades">Reservar</a>
-          <% } else { %>
+          <h3>Plan <%= m.tipo_plan.toLowerCase() %></h3>
+          <p class="muted small"><%= m.promocion_descripcion || 'Sin promoción vigente' %></p>
+          <% if (!currentUser) { %>
             <a class="btn btn-small" href="/registro">Quiero sumarme</a>
           <% } %>
         </article>
@@ -77,25 +69,70 @@
   <% } %>
 </section>
 
+<section id="sedes" class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Dónde entrenar</span>
+      <h2>Nuestras sedes</h2>
+    </div>
+    <p class="muted">Tu membresía te habilita a entrenar en todas.</p>
+  </div>
+  <% if (sedes.length === 0) { %>
+    <div class="empty">Todavía no hay sedes cargadas.</div>
+  <% } else { %>
+    <div class="grid activity-grid">
+      <% sedes.forEach((sd) => { %>
+        <article class="card activity-card">
+          <h3><%= sd.nombre_sede %></h3>
+          <p class="muted small"><%= sd.direccion %></p>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Equipo</span>
+      <h2>Entrenadores</h2>
+    </div>
+    <p class="muted">Profesionales que diseñan y ajustan tu rutina.</p>
+  </div>
+  <% if (entrenadores.length === 0) { %>
+    <div class="empty">Todavía no hay entrenadores cargados.</div>
+  <% } else { %>
+    <div class="grid activity-grid">
+      <% entrenadores.forEach((e) => { %>
+        <article class="card activity-card">
+          <h3><%= e.nombre %> <%= e.apellido %></h3>
+          <p class="muted small"><%= e.especialidad %></p>
+          <% if (e.certificaciones) { %><p class="muted small"><%= e.certificaciones %></p><% } %>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
 <section class="section features">
   <article class="feature">
-    <h3>Profesores con experiencia</h3>
-    <p>Clases guiadas, corrección de técnica y planes adaptados a cada nivel.</p>
+    <h3>Rutinas personalizadas</h3>
+    <p>Tu entrenador te asigna una rutina con series, repeticiones y cargas.</p>
   </article>
   <article class="feature">
-    <h3>Reservas simples</h3>
-    <p>Desde tu panel ves cupos, reservás y cancelás sin llamar ni escribir.</p>
+    <h3>Seguimiento físico</h3>
+    <p>Peso, porcentaje de grasa y masa muscular registrados en cada evaluación.</p>
   </article>
   <article class="feature">
     <h3>Cuotas claras</h3>
-    <p>Consultá tu historial de pagos y las cuotas pendientes cuando quieras.</p>
+    <p>Consultá tu plan, el vencimiento y tu historial de pagos cuando quieras.</p>
   </article>
 </section>
 
 <section class="cta-banner">
   <div>
     <h2>¿Listo para arrancar?</h2>
-    <p>Creá tu cuenta gratis y reservá tu primera clase hoy mismo.</p>
+    <p>Creá tu cuenta gratis y empezá a seguir tu progreso.</p>
   </div>
   <a class="btn btn-primary" href="/registro">Crear mi cuenta</a>
 </section>

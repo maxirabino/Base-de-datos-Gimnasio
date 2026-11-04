@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Entrenamiento</span>
+    <h1>Mis rutinas</h1>
+    <p class="muted">Rutinas que te asignaron tus entrenadores.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<% if (rutinas.length === 0) { %>
+  <div class="empty">Todavía no tenés rutinas asignadas. Consultá con un entrenador.</div>
+<% } else { %>
+  <% rutinas.forEach((r) => { %>
+    <section class="panel routine-block">
+      <div class="panel-head">
+        <div>
+          <h2><%= r.nombre_rutina %></h2>
+          <span class="muted small">
+            <%= r.objetivo || 'Sin objetivo definido' %> · Nivel <%= r.nivel %> · <%= r.duracion_semanas %> semanas
+          </span>
+        </div>
+        <span class="muted small">Asignada el <%= formatDate(r.fecha_asignacion) %> por <%= r.entrenador %></span>
+      </div>
+      <% if (r.observaciones) { %><p class="muted small">Observaciones: <%= r.observaciones %></p><% } %>
+      <%- include('../partials/ejercicios', { ejercicios: r.ejercicios }) %>
+    </section>
+  <% }) %>
+<% } %>
+
+<%- include('../partials/footer') %>

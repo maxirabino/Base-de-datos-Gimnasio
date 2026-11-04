@@ -898,6 +898,8 @@ th.right {
 
 .badge-confirmada,
 .badge-pagado,
+.badge-vigente,
+.badge-abierto,
 .badge-activa {
   background: rgba(61, 220, 151, 0.12);
   color: var(--green);
@@ -905,7 +907,8 @@ th.right {
 }
 
 .badge-cancelada,
-.badge-inactiva {
+.badge-inactiva,
+.badge-sin-pagos {
   background: rgba(147, 161, 179, 0.1);
   color: var(--muted);
   border-color: rgba(147, 161, 179, 0.24);
@@ -1085,4 +1088,16 @@ th.right {
   .footer-links {
     text-align: left;
   }
+}
+
+/* Listas de ejercicios / formularios inline (rutinas) */
+.routine-block + .routine-block {
+  margin-top: 1.25rem;
+}
+
+details.inline-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
 }

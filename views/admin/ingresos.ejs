@@ -1,0 +1,79 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Control de ingresos</h1>
+    <p class="muted">Registro de entradas y salidas. Solo se permite el ingreso con membresía vigente.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<section class="panel">
+  <div class="panel-head"><h2>Registrar ingreso</h2></div>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/admin/ingresos" class="stack">
+    <div class="form-grid">
+      <label>
+        Socio
+        <select name="id_socio" required>
+          <option value="">Seleccionar...</option>
+          <% socios.forEach((s) => { %>
+            <option value="<%= s.id_socio %>" <%= String(old.id_socio) === String(s.id_socio) ? 'selected' : '' %>>
+              <%= s.nombre %> · Doc. <%= s.documento %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <label>
+        Sede
+        <select name="id_sede" required>
+          <option value="">Seleccionar...</option>
+          <% sedes.forEach((sd) => { %>
+            <option value="<%= sd.id_sede %>" <%= String(old.id_sede) === String(sd.id_sede) ? 'selected' : '' %>><%= sd.nombre_sede %></option>
+          <% }) %>
+        </select>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Registrar ingreso ahora</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>Últimos <%= ingresos.length %> ingresos</h2></div>
+  <% if (ingresos.length === 0) { %>
+    <div class="empty">Todavía no hay ingresos registrados.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Socio</th><th>Sede</th><th>Fecha</th><th>Ingreso</th><th>Egreso</th><th>Permanencia</th><th></th></tr></thead>
+        <tbody>
+          <% ingresos.forEach((i) => { %>
+            <tr>
+              <td><strong><%= i.socio %></strong></td>
+              <td><%= i.nombre_sede %></td>
+              <td><%= formatDate(i.fecha) %></td>
+              <td><%= formatTime(i.hora_ingreso) %></td>
+              <td><%= i.hora_egreso ? formatTime(i.hora_egreso) : '-' %></td>
+              <td>
+                <% if (i.minutos !== null && i.minutos >= 0) { %>
+                  <%= Math.floor(i.minutos / 60) %> h <%= String(i.minutos % 60).padStart(2, '0') %> min
+                <% } else { %><span class="badge badge-abierto">en el gimnasio</span><% } %>
+              </td>
+              <td class="right">
+                <% if (!i.hora_egreso) { %>
+                  <form method="post" action="/admin/ingresos/<%= i.id_ingreso %>/egreso">
+                    <button type="submit" class="btn btn-small">Registrar egreso</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

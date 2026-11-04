@@ -1,0 +1,91 @@
+<%- include('../partials/header') %>
+
+<section class="page-head">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Rutinas</h1>
+    <p class="muted">Catálogo de rutinas y sus ejercicios. Los entrenadores las asignan a los socios.</p>
+  </div>
+</section>
+
+<%- include('tabs') %>
+
+<section class="panel">
+  <div class="panel-head"><h2>Nueva rutina</h2></div>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/admin/rutinas" class="stack">
+    <div class="form-grid form-grid-3">
+      <label>Nombre <input type="text" name="nombre_rutina" maxlength="100" value="<%= old.nombre_rutina || '' %>" required></label>
+      <label>Objetivo <input type="text" name="objetivo" maxlength="150" value="<%= old.objetivo || '' %>"></label>
+      <label>Nivel
+        <select name="nivel" required>
+          <option value="">Seleccionar...</option>
+          <% niveles.forEach((n) => { %>
+            <option value="<%= n %>" <%= old.nivel === n ? 'selected' : '' %>><%= n %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Duración (semanas)
+        <input type="number" name="duracion_semanas" min="1" step="1" value="<%= old.duracion_semanas ?? '' %>" required>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear rutina</button>
+  </form>
+</section>
+
+<% rutinas.forEach((r) => { %>
+  <section class="panel routine-block">
+    <div class="panel-head">
+      <div>
+        <h2><%= r.nombre_rutina %></h2>
+        <span class="muted small"><%= r.objetivo || 'Sin objetivo' %> · Nivel <%= r.nivel %> · <%= r.duracion_semanas %> semanas</span>
+      </div>
+      <span class="muted small"><%= r.asignaciones %> asignaciones</span>
+    </div>
+    <%- include('../partials/ejercicios', { ejercicios: r.ejercicios }) %>
+
+    <details class="inline-details" <%= (errorsEj.length && String(oldEj.id_rutina) === String(r.id_rutina)) ? 'open' : '' %>>
+      <summary>Agregar ejercicio</summary>
+      <% if (errorsEj.length && String(oldEj.id_rutina) === String(r.id_rutina)) { %>
+        <%- include('../partials/errors', { errors: errorsEj }) %>
+      <% } %>
+      <% const o = String(oldEj.id_rutina) === String(r.id_rutina) ? oldEj : {}; %>
+      <form method="post" action="/admin/rutinas/<%= r.id_rutina %>/ejercicios" class="stack">
+        <div class="form-grid form-grid-3">
+          <label>Ejercicio <input type="text" name="nombre_ejercicio" maxlength="100" value="<%= o.nombre_ejercicio || '' %>" required></label>
+          <label>Grupo muscular <input type="text" name="grupo_muscular" maxlength="50" value="<%= o.grupo_muscular || '' %>"></label>
+          <label>Series <input type="number" name="series" min="1" step="1" value="<%= o.series ?? '' %>" required></label>
+          <label>Repeticiones <input type="number" name="repeticiones" min="1" step="1" value="<%= o.repeticiones ?? '' %>" required></label>
+          <label>Carga (kg) <input type="number" name="carga_kg" min="0" max="999.99" step="0.01" value="<%= o.carga_kg ?? '' %>" placeholder="0 = peso corporal"></label>
+        </div>
+        <button type="submit" class="btn btn-small">Agregar</button>
+      </form>
+    </details>
+  </section>
+<% }) %>
+
+<section class="panel">
+  <div class="panel-head"><h2>Últimas asignaciones</h2></div>
+  <% if (asignaciones.length === 0) { %>
+    <div class="empty">Todavía no hay rutinas asignadas.</div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Socio</th><th>Rutina</th><th>Entrenador</th><th>Fecha</th><th>Observaciones</th></tr></thead>
+        <tbody>
+          <% asignaciones.forEach((a) => { %>
+            <tr>
+              <td><strong><%= a.socio %></strong></td>
+              <td><%= a.nombre_rutina %></td>
+              <td><%= a.entrenador %></td>
+              <td><%= formatDate(a.fecha_asignacion) %></td>
+              <td><%= a.observaciones || '-' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/footer') %>

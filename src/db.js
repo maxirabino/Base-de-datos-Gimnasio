@@ -1,5 +1,5 @@
 const sql = require('mssql');
-const config = require('./config'); // Lee directamente desde las variables de entorno
+const config = require('./config');
 
 let poolPromise;
 

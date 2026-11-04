@@ -1,0 +1,22 @@
+<% if (registros.length === 0) { %>
+  <div class="empty">Todavía no hay evaluaciones registradas.</div>
+<% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Peso</th><th>% grasa</th><th>Masa muscular</th><th>Observaciones</th></tr>
+      </thead>
+      <tbody>
+        <% registros.forEach((r) => { %>
+          <tr>
+            <td><%= formatDate(r.fecha_registro) %></td>
+            <td><%= Number(r.peso_kg) %> kg</td>
+            <td><%= r.porcentaje_grasa !== null ? Number(r.porcentaje_grasa) + ' %' : '-' %></td>
+            <td><%= r.masa_muscular_kg !== null ? Number(r.masa_muscular_kg) + ' kg' : '-' %></td>
+            <td><%= r.observaciones || '-' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

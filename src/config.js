@@ -8,7 +8,7 @@ module.exports = {
     port: Number(process.env.DB_PORT || 1433),
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'Gimnasio',
+    database: process.env.DB_NAME || 'SistemaGimnasio',
     options: {
       encrypt: process.env.DB_ENCRYPT !== 'false',
       trustServerCertificate: process.env.DB_TRUST_SERVER_CERT !== 'false',

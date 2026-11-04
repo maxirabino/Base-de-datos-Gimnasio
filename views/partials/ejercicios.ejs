@@ -1,0 +1,22 @@
+<% if (!ejercicios || ejercicios.length === 0) { %>
+  <p class="muted small">Esta rutina todavía no tiene ejercicios cargados.</p>
+<% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Ejercicio</th><th>Grupo muscular</th><th>Series</th><th>Repeticiones</th><th>Carga</th></tr>
+      </thead>
+      <tbody>
+        <% ejercicios.forEach((e) => { %>
+          <tr>
+            <td><strong><%= e.nombre_ejercicio %></strong></td>
+            <td><%= e.grupo_muscular || '-' %></td>
+            <td><%= e.series ?? '-' %></td>
+            <td><%= e.repeticiones ?? '-' %></td>
+            <td><%= Number(e.carga_kg) > 0 ? Number(e.carga_kg) + ' kg' : 'Peso corporal' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

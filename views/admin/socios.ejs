@@ -4,17 +4,17 @@
   <div>
     <span class="eyebrow">Administración</span>
     <h1>Socios</h1>
-    <p class="muted">Listado de socios registrados, reservas y deuda.</p>
+    <p class="muted">El estado de la cuota se calcula desde los pagos registrados.</p>
   </div>
+  <form method="post" action="/admin/socios/sincronizar">
+    <button type="submit" class="btn btn-ghost">Sincronizar estados guardados</button>
+  </form>
 </section>
 
 <%- include('tabs') %>
 
 <section class="panel">
-  <div class="panel-head">
-    <h2><%= socios.length %> socios registrados</h2>
-  </div>
-
+  <div class="panel-head"><h2><%= socios.length %> socios</h2></div>
   <% if (socios.length === 0) { %>
     <div class="empty">Todavía no hay socios registrados.</div>
   <% } else { %>
@@ -22,30 +22,28 @@
       <table>
         <thead>
           <tr>
-            <th>Socio</th>
-            <th>DNI</th>
-            <th>Contacto</th>
-            <th>Alta</th>
-            <th>Reservas</th>
-            <th>Deuda</th>
-            <th>Estado</th>
+            <th>Socio</th><th>Contacto</th><th>Plan</th><th>Vence</th><th>Cuota</th>
+            <th>Asist. 30 d</th><th>Cuenta web</th>
           </tr>
         </thead>
         <tbody>
           <% socios.forEach((s) => { %>
             <tr>
               <td>
-                <strong><%= s.nombre %> <%= s.apellido %></strong>
-                <span class="muted small block"><%= s.email %></span>
+                <strong><%= s.nombre %> <%= s.apellidos %></strong>
+                <span class="muted small block">Doc. <%= s.documento %> · alta <%= formatDate(s.fecha_alta) %></span>
               </td>
-              <td><%= s.dni %></td>
               <td><%= s.telefono || '-' %></td>
-              <td><%= formatDate(s.fecha_alta) %></td>
-              <td><%= s.reservas %></td>
-              <td class="<%= Number(s.deuda) > 0 ? 'text-warn' : '' %>"><%= formatMoney(s.deuda) %></td>
+              <td><%= s.tipo_plan || '-' %></td>
+              <td><%= s.fecha_vencimiento ? formatDate(s.fecha_vencimiento) : '-' %></td>
               <td>
-                <span class="badge badge-<%= s.estado === 'activo' ? 'activa' : 'inactiva' %>"><%= s.estado %></span>
+                <span class="badge badge-<%= s.estado_cuota.replace(' ', '-') %>"><%= s.estado_cuota %></span>
+                <% if ((s.estado_cuota === 'vigente') !== (s.estado_guardado === 'Activo')) { %>
+                  <span class="muted small block">guardado: <%= s.estado_guardado %></span>
+                <% } %>
               </td>
+              <td><%= s.asistencias_30d %></td>
+              <td><%= s.email || 'Sin cuenta' %></td>
             </tr>
           <% }) %>
         </tbody>

@@ -4,11 +4,11 @@
   <div>
     <span class="eyebrow">Administración</span>
     <h1>Resumen general</h1>
-    <p class="muted">Estado del gimnasio, clases y cuotas.</p>
+    <p class="muted">Estado del gimnasio, membresías e ingresos.</p>
   </div>
   <div class="hero-actions">
-    <a class="btn btn-primary" href="/admin/actividades">Nueva actividad</a>
-    <a class="btn btn-ghost" href="/admin/pagos">Registrar pago</a>
+    <a class="btn btn-primary" href="/admin/pagos">Registrar pago</a>
+    <a class="btn btn-ghost" href="/admin/ingresos">Registrar ingreso</a>
   </div>
 </section>
 
@@ -16,56 +16,56 @@
 
 <section class="stats-grid">
   <article class="stat-card">
-    <span class="stat-label">Socios activos</span>
+    <span class="stat-label">Socios</span>
     <strong><%= stats.socios %></strong>
-    <span class="muted small">con cuenta habilitada</span>
+    <span class="muted small"><%= stats.vigentes %> con cuota vigente</span>
   </article>
   <article class="stat-card">
-    <span class="stat-label">Profesores</span>
-    <strong><%= stats.profesores %></strong>
-    <span class="muted small">en actividad</span>
+    <span class="stat-label">Cuotas vencidas o sin pagos</span>
+    <strong><%= stats.socios - stats.vigentes %></strong>
+    <span class="muted small">socios a regularizar</span>
   </article>
   <article class="stat-card">
-    <span class="stat-label">Actividades</span>
-    <strong><%= stats.actividades %></strong>
-    <span class="muted small">publicadas</span>
+    <span class="stat-label">Entrenadores</span>
+    <strong><%= stats.entrenadores %></strong>
+    <span class="muted small">en el equipo</span>
   </article>
   <article class="stat-card">
-    <span class="stat-label">Reservas</span>
-    <strong><%= stats.reservas %></strong>
-    <span class="muted small">confirmadas</span>
+    <span class="stat-label">Rutinas</span>
+    <strong><%= stats.rutinas %></strong>
+    <span class="muted small">en el catálogo</span>
   </article>
   <article class="stat-card">
-    <span class="stat-label">Cuotas pendientes</span>
-    <strong><%= stats.cuotas_pendientes %></strong>
-    <span class="muted small">pendientes o vencidas</span>
+    <span class="stat-label">Ingresos de hoy</span>
+    <strong><%= stats.ingresos_hoy %></strong>
+    <span class="muted small">en todas las sedes</span>
   </article>
   <article class="stat-card">
-    <span class="stat-label">Deuda total</span>
-    <strong><%= formatMoney(stats.deuda) %></strong>
-    <span class="muted small">a cobrar</span>
+    <span class="stat-label">Recaudado este mes</span>
+    <strong><%= formatMoney(stats.recaudado_mes) %></strong>
+    <span class="muted small">pagos de membresías</span>
   </article>
 </section>
 
 <div class="two-col">
   <section class="panel">
     <div class="panel-head">
-      <h2>Clases publicadas</h2>
-      <a class="link" href="/admin/actividades">Administrar</a>
+      <h2>Últimos ingresos</h2>
+      <a class="link" href="/admin/ingresos">Ver todos</a>
     </div>
-    <% if (clases.length === 0) { %>
-      <div class="empty">No hay actividades publicadas.</div>
+    <% if (ingresos.length === 0) { %>
+      <div class="empty">No hay ingresos registrados.</div>
     <% } else { %>
       <ul class="class-list">
-        <% clases.forEach((c) => { %>
+        <% ingresos.forEach((i) => { %>
           <li>
             <div>
-              <strong><%= c.nombre %></strong>
-              <span class="muted small"><%= c.profesor || 'Sin profesor' %> · <%= c.sala %></span>
+              <strong><%= i.socio %></strong>
+              <span class="muted small"><%= i.nombre_sede %></span>
             </div>
             <div class="class-time">
-              <span class="badge badge-day"><%= c.dia_semana %></span>
-              <span class="muted small"><%= formatTime(c.hora_inicio) %> · <%= c.inscriptos %>/<%= c.cupo %></span>
+              <span class="badge badge-day"><%= formatDate(i.fecha) %></span>
+              <span class="muted small"><%= formatTime(i.hora_ingreso) %> a <%= i.hora_egreso ? formatTime(i.hora_egreso) : '—' %></span>
             </div>
           </li>
         <% }) %>
@@ -75,7 +75,7 @@
 
   <section class="panel">
     <div class="panel-head">
-      <h2>Últimos movimientos</h2>
+      <h2>Últimos pagos</h2>
       <a class="link" href="/admin/pagos">Ver pagos</a>
     </div>
     <% if (pagos.length === 0) { %>
@@ -86,11 +86,11 @@
           <li>
             <div>
               <strong><%= p.socio %></strong>
-              <span class="muted small"><%= p.concepto %></span>
+              <span class="muted small">Plan <%= p.tipo_plan %> · vence <%= formatDate(p.fecha_vencimiento) %></span>
             </div>
             <div class="payment-amount">
-              <strong><%= formatMoney(p.monto) %></strong>
-              <span class="badge badge-<%= p.estado %>"><%= p.estado %></span>
+              <strong><%= formatMoney(p.monto_abonado) %></strong>
+              <span class="muted small"><%= formatDate(p.fecha_pago) %></span>
             </div>
           </li>
         <% }) %>
